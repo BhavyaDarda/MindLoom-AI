@@ -326,7 +326,7 @@ export function Hero() {
           <div className="bg-primary text-primary-foreground brutal-border brutal-shadow-lg px-8 py-4 inline-block transform -rotate-2">
             <div className="flex items-center gap-3 text-lg font-black uppercase">
               <Sparkles className="w-6 h-6" />
-              AI-POWERED CONTENT DESTROYER
+              AI CONTENT TRANSFORMER
             </div>
           </div>
           
@@ -347,8 +347,8 @@ export function Hero() {
 
           <div className="bg-muted brutal-border brutal-shadow px-3 xs:px-4 sm:px-6 md:px-8 py-3 xs:py-4 sm:py-5 md:py-6 max-w-4xl mx-auto">
             <p className="text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl font-bold uppercase leading-tight">
-              TRANSFORM ANY WEB CONTENT INTO YOUR PERFECT VIEW. CONVERT ARTICLES, PAPERS, 
-              DOCUMENTS, AND YOUTUBE VIDEOS INTO SUMMARIES, MINDMAPS, PODCASTS, AND MORE.
+              HACKATHON PROJECT: Transform any content into summaries, mindmaps, and more using AI. 
+              Built with React, Supabase, and modern AI APIs.
             </p>
           </div>
         </div>
@@ -357,7 +357,7 @@ export function Hero() {
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="bg-background brutal-border-thick brutal-shadow-lg">
             <div className="bg-foreground text-background p-4">
-              <h2 className="text-2xl font-black uppercase tracking-wider">CONTENT DESTROYER 3000</h2>
+              <h2 className="text-2xl font-black uppercase tracking-wider">AI CONTENT PROCESSOR</h2>
             </div>
             
             <Tabs defaultValue="url" className="w-full">

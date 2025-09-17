@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Menu, Zap, Crown, MessageSquare, ChevronRight, LogIn, LogOut, User } from "lucide-react";
+import { Sparkles, Menu, Zap, Github, MessageSquare, ChevronRight, LogIn, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,14 +15,8 @@ export function Header() {
     label: "Demo",
     href: "#demo"
   }, {
-    label: "Bookmarklet",
-    href: "#bookmarklet"
-  }, {
-    label: "Pricing",
-    href: "#pricing"
-  }, {
-    label: "Support",
-    href: "#support"
+    label: "Upload",
+    href: "#upload"
   }];
   return <header className="fixed top-0 w-full z-50 bg-background brutal-border-thick border-t-0 border-l-0 border-r-0 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
@@ -65,10 +59,10 @@ export function Header() {
                       </span>
                     </div>
 
-                    {/* Upgrade button */}
-                    <Button variant="accent" size="sm" className="hidden sm:flex">
-                      <Crown className="w-4 h-4 mr-2" />
-                      Upgrade
+                    {/* GitHub link for hackathon credibility */}
+                    <Button variant="outline" size="sm" className="hidden sm:flex">
+                      <Github className="w-4 h-4 mr-2" />
+                      GitHub
                     </Button>
 
                     {/* Sign Out button */}
@@ -128,9 +122,9 @@ export function Header() {
                             {user.email}
                           </span>
                         </div>
-                        <Button variant="accent" size="sm" className="justify-start">
-                          <Crown className="w-4 h-4 mr-2" />
-                          Upgrade to Pro
+                        <Button variant="outline" size="sm" className="justify-start">
+                          <Github className="w-4 h-4 mr-2" />
+                          View on GitHub
                         </Button>
                         <Button variant="outline" size="sm" onClick={signOut} className="justify-start">
                           <LogOut className="w-4 h-4 mr-2" />
