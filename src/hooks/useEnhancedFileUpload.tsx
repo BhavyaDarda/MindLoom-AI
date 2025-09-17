@@ -46,12 +46,31 @@ export function useEnhancedFileUpload(options: FileUploadOptions = {}) {
   const { user } = useAuth();
 
   const validateFile = useCallback((file: File): string | null => {
+    // Size validation
     if (file.size > maxSize * 1024 * 1024) {
       return `File size must be less than ${maxSize}MB`;
     }
     
-    if (!allowedTypes.includes(file.type)) {
+    // Empty file validation
+    if (file.size === 0) {
+      return 'File is empty';
+    }
+    
+    // Type validation
+    if (!allowedTypes.includes(file.type) && !allowedTypes.includes('*/*')) {
       return `File type ${file.type} is not supported. Allowed types: ${allowedTypes.join(', ')}`;
+    }
+    
+    // File name validation
+    if (file.name.length > 255) {
+      return 'File name is too long (max 255 characters)';
+    }
+    
+    // Check for potentially malicious files
+    const suspiciousExtensions = ['.exe', '.bat', '.cmd', '.scr', '.pif', '.com'];
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (suspiciousExtensions.includes(fileExtension)) {
+      return 'File type not allowed for security reasons';
     }
     
     return null;
@@ -145,12 +164,22 @@ export function useEnhancedFileUpload(options: FileUploadOptions = {}) {
     try {
       const processedFiles: UploadedFile[] = [];
       
+      // Validate file count
+      if (fileArray.length > 10) {
+        toast({
+          title: "Too Many Files",
+          description: "Maximum 10 files allowed at once",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       for (const file of fileArray) {
         const validationError = validateFile(file);
         if (validationError) {
           toast({
             title: "Invalid File",
-            description: validationError,
+            description: `${file.name}: ${validationError}`,
             variant: "destructive",
           });
           continue;
@@ -174,10 +203,28 @@ export function useEnhancedFileUpload(options: FileUploadOptions = {}) {
               
               fileId = await saveFileRecord(file, storagePath, contentPreview);
             }
+            
+            if (!fileId) {
+              toast({
+                title: "Upload Failed",
+                description: `Failed to save ${file.name} to database`,
+                variant: "destructive",
+              });
+              continue;
+            }
+          } else {
+            // For non-authenticated users, create a temporary ID
+            fileId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            toast({
+              title: "Limited Mode",
+              description: "Sign in to save files permanently and access full features",
+              variant: "default",
+            });
           }
           
           processedFiles.push({
-            id: fileId || Date.now().toString(),
+            id: fileId,
             file,
             content,
             type: fileType,
@@ -185,23 +232,30 @@ export function useEnhancedFileUpload(options: FileUploadOptions = {}) {
             contentPreview: fileType === 'text' || fileType === 'json' ? content.substring(0, 500) : undefined
           });
         } catch (error) {
+          console.error('File processing error:', error);
           toast({
-            title: "File Read Error",
-            description: `Failed to read ${file.name}`,
+            title: "File Processing Error",
+            description: `Failed to process ${file.name}: ${error.message}`,
             variant: "destructive",
           });
         }
       }
       
-      setUploadedFiles(prev => [...prev, ...processedFiles]);
-      
       if (processedFiles.length > 0) {
+        setUploadedFiles(prev => [...prev, ...processedFiles]);
         toast({
-          title: "Files Uploaded",
-          description: `Successfully uploaded ${processedFiles.length} file(s)`,
+          title: "Files Processed",
+          description: `Successfully processed ${processedFiles.length} file(s)`,
         });
       }
       
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload Error",
+        description: "An unexpected error occurred during upload",
+        variant: "destructive",
+      });
     } finally {
       setIsUploading(false);
     }

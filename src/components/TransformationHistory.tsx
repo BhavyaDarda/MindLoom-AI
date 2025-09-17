@@ -17,12 +17,12 @@ import {
   ExternalLink,
   Search
 } from 'lucide-react';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useTransformationHistory } from '@/hooks/useTransformationHistory';
 import { ResultsDisplay } from '@/components/ResultsDisplay';
 import { Input } from '@/components/ui/input';
 
 export function TransformationHistory() {
-  const { transformationHistory, deleteTransformation, clearHistory, exportTransformations } = useLocalStorage();
+  const { transformationHistory, deleteTransformation, clearHistory, exportTransformations, isLoading } = useTransformationHistory();
   const [selectedResult, setSelectedResult] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');

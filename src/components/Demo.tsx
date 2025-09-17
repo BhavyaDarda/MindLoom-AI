@@ -21,6 +21,7 @@ import { useState } from "react";
 import { useEnhancedFileUpload } from "@/hooks/useEnhancedFileUpload";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useTransformationHistory } from "@/hooks/useTransformationHistory";
 import { supabase } from "@/integrations/supabase/client";
 import { useDropzone } from "react-dropzone";
 
@@ -32,6 +33,7 @@ export function Demo() {
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const { saveTransformation } = useTransformationHistory();
   const { uploadFiles, uploadedFiles, isUploading, clearFiles } = useEnhancedFileUpload();
 
   const onDrop = async (acceptedFiles: File[]) => {
@@ -181,12 +183,17 @@ export function Demo() {
     setIsProcessing(true);
     try {
       const file = uploadedFiles[0];
+      const session = await supabase.auth.getSession();
+      
       const { data, error } = await supabase.functions.invoke('file-processor', {
         body: {
           fileId: file.id,
           transformationType,
-          customPrompt: null
-        }
+          customPrompt: transformationType === 'notes' ? 'Create comprehensive study notes with key concepts and questions' : null
+        },
+        headers: session.data.session ? {
+          Authorization: `Bearer ${session.data.session.access_token}`
+        } : {}
       });
 
       if (error) throw error;
@@ -194,6 +201,16 @@ export function Demo() {
       if (data.success) {
         setTransformationResult(data.transformedContent);
         setCurrentDemo('files');
+        
+        // Save to transformation history
+        await saveTransformation(
+          undefined,
+          data.title || `${transformationType} of ${file.file.name}`,
+          transformationType,
+          { transformedContent: data.transformedContent },
+          file.content
+        );
+        
         toast({
           title: "File Processed",
           description: "Your file has been successfully transformed!",
