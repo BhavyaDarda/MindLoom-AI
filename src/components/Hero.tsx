@@ -386,11 +386,11 @@ export function Hero() {
                       <h3 className="text-xl font-black uppercase">PASTE ANY URL TO DESTROY</h3>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <div className="flex-1 relative">
+                    <div className="flex flex-col sm:flex-row gap-4 ">
+                      <div className="flex-1 relative border-black border-4">
                         <Input
                           type="url"
-                          placeholder="https://example.com/article or https://youtube.com/watch?v=..."
+                          placeholder="Enter the URL Here"
                           value={inputUrl}
                           onChange={(e) => setInputUrl(e.target.value)}
                           className="h-12 sm:h-16 text-sm sm:text-lg bg-background brutal-border font-bold pl-12 sm:pl-16"
