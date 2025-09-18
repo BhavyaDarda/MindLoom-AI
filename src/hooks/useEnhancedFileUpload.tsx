@@ -45,10 +45,10 @@ export function useEnhancedFileUpload(options: FileUploadOptions = {}) {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const validateFile = useCallback((file: File): string | null => {
-    // Size validation
-    if (file.size > maxSize * 1024 * 1024) {
-      return `File size must be less than ${maxSize}MB`;
+  const validateFile = useCallback(async (file: File): Promise<string | null> => {
+    // Stricter size validation (5MB limit for better security)
+    if (file.size > 5 * 1024 * 1024) {
+      return 'File size must be less than 5MB';
     }
     
     // Empty file validation
@@ -66,15 +66,66 @@ export function useEnhancedFileUpload(options: FileUploadOptions = {}) {
       return 'File name is too long (max 255 characters)';
     }
     
-    // Check for potentially malicious files
-    const suspiciousExtensions = ['.exe', '.bat', '.cmd', '.scr', '.pif', '.com'];
+    // Enhanced security check for malicious files
+    const suspiciousExtensions = [
+      '.exe', '.bat', '.cmd', '.scr', '.pif', '.com', '.msi', '.dll', 
+      '.app', '.deb', '.rpm', '.dmg', '.pkg', '.ps1', '.sh', '.vbs', 
+      '.js', '.jar', '.apk', '.ipa'
+    ];
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
     if (suspiciousExtensions.includes(fileExtension)) {
       return 'File type not allowed for security reasons';
     }
     
+    // Content-based validation for common file types
+    try {
+      const buffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(buffer);
+      
+      // Check for common file signatures (magic numbers)
+      if (file.type.startsWith('image/')) {
+        const isValidImage = validateImageSignature(uint8Array, file.type);
+        if (!isValidImage) {
+          return 'Invalid image file format';
+        }
+      }
+      
+      if (file.type === 'application/pdf') {
+        const isValidPdf = validatePdfSignature(uint8Array);
+        if (!isValidPdf) {
+          return 'Invalid PDF file format';
+        }
+      }
+    } catch (error) {
+      console.error('File validation error:', error);
+      return 'Error validating file content';
+    }
+    
     return null;
-  }, [maxSize, allowedTypes]);
+  }, [allowedTypes]);
+
+  const validateImageSignature = (bytes: Uint8Array, mimeType: string): boolean => {
+    // Check for common image file signatures
+    const signatures = {
+      'image/jpeg': [[0xFF, 0xD8, 0xFF]],
+      'image/png': [[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]],
+      'image/gif': [[0x47, 0x49, 0x46, 0x38, 0x37, 0x61], [0x47, 0x49, 0x46, 0x38, 0x39, 0x61]],
+      'image/webp': [[0x52, 0x49, 0x46, 0x46]]
+    };
+
+    const fileSignatures = signatures[mimeType as keyof typeof signatures];
+    if (!fileSignatures) return true; // Allow if no signature check available
+
+    return fileSignatures.some(signature => 
+      signature.every((byte, index) => bytes[index] === byte)
+    );
+  };
+
+  const validatePdfSignature = (bytes: Uint8Array): boolean => {
+    // PDF files start with %PDF-
+    const pdfSignature = [0x25, 0x50, 0x44, 0x46, 0x2D];
+    return pdfSignature.every((byte, index) => bytes[index] === byte);
+  };
 
   const getFileType = (file: File): UploadedFile['type'] => {
     if (file.type.includes('pdf')) return 'pdf';
@@ -162,20 +213,42 @@ export function useEnhancedFileUpload(options: FileUploadOptions = {}) {
     setIsUploading(true);
     
     try {
+      // Check daily upload limits for authenticated users
+      if (user) {
+        try {
+          const totalSize = fileArray.reduce((total, file) => total + file.size, 0);
+          const { data: canUpload, error } = await supabase.rpc('check_upload_limits', {
+            p_file_size: totalSize
+          });
+          
+          if (error || !canUpload) {
+            toast({
+              title: "Upload limit exceeded",
+              description: "You have reached your daily upload limit. Please try again tomorrow.",
+              variant: "destructive",
+            });
+            setIsUploading(false);
+            return;
+          }
+        } catch (error) {
+          console.error('Error checking upload limits:', error);
+        }
+      }
+
       const processedFiles: UploadedFile[] = [];
       
-      // Validate file count
-      if (fileArray.length > 10) {
+      // Validate file count (reduced for security)
+      if (fileArray.length > 5) {
         toast({
           title: "Too Many Files",
-          description: "Maximum 10 files allowed at once",
+          description: "Maximum 5 files allowed at once",
           variant: "destructive",
         });
         return;
       }
       
       for (const file of fileArray) {
-        const validationError = validateFile(file);
+        const validationError = await validateFile(file);
         if (validationError) {
           toast({
             title: "Invalid File",

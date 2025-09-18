@@ -20,6 +20,25 @@ export default function Auth() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/(?=.*[@$!%*?&])/.test(password)) {
+      return 'Password must contain at least one special character (@$!%*?&)';
+    }
+    return null;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
@@ -32,6 +51,18 @@ export default function Auth() {
     setIsLoading(true);
 
     try {
+      // Validate password strength
+      const passwordError = validatePassword(formData.password);
+      if (passwordError) {
+        toast({
+          title: "Password validation failed",
+          description: passwordError,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const redirectUrl = `${window.location.origin}/`;
       
       const { error } = await supabase.auth.signUp({
@@ -46,9 +77,19 @@ export default function Auth() {
       });
 
       if (error) {
+        // Enhanced error handling
+        let errorMessage = error.message;
+        if (error.message.includes('User already registered')) {
+          errorMessage = 'An account with this email already exists. Please sign in instead.';
+        } else if (error.message.includes('Invalid email')) {
+          errorMessage = 'Please enter a valid email address.';
+        } else if (error.message.includes('Password should be')) {
+          errorMessage = 'Password does not meet security requirements.';
+        }
+        
         toast({
           title: "Sign Up Error",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
       } else {
@@ -58,6 +99,7 @@ export default function Auth() {
         });
       }
     } catch (error) {
+      console.error('Sign up error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
