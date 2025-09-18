@@ -12,7 +12,7 @@ enabled = true
 port = 54324
 site_url = "http://127.0.0.1:3000"
 additional_redirect_urls = ["https://aynhvozryqdfoibmhygq.supabase.co"]
-jwt_expiry = 3600
+jwt_expiry = 900
 refresh_token_rotation_enabled = true
 anonymous_users_enabled = false
 api_external_url = "http://127.0.0.1:54324"
@@ -40,10 +40,10 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.ai-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.file-processor]
-verify_jwt = false
+verify_jwt = true
 
 [realtime]
 enabled = true

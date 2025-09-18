@@ -13,6 +13,10 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Get client IP and user agent for logging
+  const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+  const userAgent = req.headers.get('user-agent') || 'unknown';
+
   try {
     const { fileId, transformationType, customPrompt } = await req.json();
     
@@ -193,26 +197,54 @@ Content extraction not supported for this file type. Supported types include:
 
     console.log('Transformation complete');
 
-    // Save transformation to database with user_id
+    // Get the authenticated user (now required due to JWT verification)
     const authHeader = req.headers.get('authorization');
-    let userId = null;
+    if (!authHeader) {
+      console.error('Authentication required - no auth header');
+      return new Response(JSON.stringify({ error: 'Authentication required' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Get user from auth header
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    if (authError || !user) {
+      console.error('Authentication failed:', authError);
+      // Log security event
       try {
-        const token = authHeader.substring(7);
-        const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-        if (!authError && user) {
-          userId = user.id;
-        }
-      } catch (error) {
-        console.log('Auth error (proceeding without user):', error);
+        await supabase.rpc('log_security_event', {
+          p_action: 'failed_authentication',
+          p_resource_type: 'file_processor',
+          p_metadata: { ip_address: clientIP, user_agent: userAgent, error: authError?.message }
+        });
+      } catch (logError) {
+        console.error('Failed to log security event:', logError);
       }
+      
+      return new Response(JSON.stringify({ error: 'Invalid authentication' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Log successful file processing request
+    try {
+      await supabase.rpc('log_security_event', {
+        p_action: 'file_processing_requested',
+        p_resource_type: 'file_processor',
+        p_metadata: { ip_address: clientIP, user_agent: userAgent, file_id: fileId }
+      });
+    } catch (logError) {
+      console.error('Failed to log security event:', logError);
     }
 
     const { data: transformation, error: saveError } = await supabase
       .from('transformations')
       .insert({
-        user_id: userId,
+        user_id: user.id, // Use authenticated user ID
         file_upload_id: fileId,
         title: `${transformationType} of ${fileData.file_name}`,
         transformation_type: transformationType,

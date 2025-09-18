@@ -23,7 +23,7 @@ export type Database = {
           file_type: string
           id: string
           storage_path: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           content_preview?: string | null
@@ -33,7 +33,7 @@ export type Database = {
           file_type: string
           id?: string
           storage_path: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           content_preview?: string | null
@@ -43,7 +43,7 @@ export type Database = {
           file_type?: string
           id?: string
           storage_path?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -74,6 +74,42 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transformations: {
         Row: {
           created_at: string
@@ -83,7 +119,7 @@ export type Database = {
           title: string
           transformation_type: string
           transformed_content: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           created_at?: string
@@ -93,7 +129,7 @@ export type Database = {
           title: string
           transformation_type: string
           transformed_content: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           created_at?: string
@@ -103,9 +139,16 @@ export type Database = {
           title?: string
           transformation_type?: string
           transformed_content?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_transformations_file_upload_id"
+            columns: ["file_upload_id"]
+            isOneToOne: false
+            referencedRelation: "file_uploads"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transformations_file_upload_id_fkey"
             columns: ["file_upload_id"]
@@ -115,12 +158,54 @@ export type Database = {
           },
         ]
       }
+      user_upload_limits: {
+        Row: {
+          created_at: string
+          daily_upload_count: number
+          daily_upload_size: number
+          last_reset_date: string
+          total_files_uploaded: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily_upload_count?: number
+          daily_upload_size?: number
+          last_reset_date?: string
+          total_files_uploaded?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily_upload_count?: number
+          daily_upload_size?: number
+          last_reset_date?: string
+          total_files_uploaded?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_upload_limits: {
+        Args: { p_file_size: number }
+        Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          p_action: string
+          p_metadata?: Json
+          p_resource_id?: string
+          p_resource_type: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
