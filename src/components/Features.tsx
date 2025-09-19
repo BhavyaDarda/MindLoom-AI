@@ -110,7 +110,7 @@ export function Features() {
   ];
 
   return (
-    <section id="features" className="py-24 px-6 bg-background">
+    <section id="features" className="py-24 px-6 bg-background font-unbound">
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Section header */}
         <div className="text-center space-y-8">

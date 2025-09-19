@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center px-6 py-24">
+        <div className="min-h-screen flex items-center justify-center px-6 py-24 font-unbound">
           <Card className="max-w-2xl mx-auto brutal-border brutal-shadow-lg">
             <CardHeader className="text-center">
               <div className="bg-destructive text-destructive-foreground brutal-border p-4 mb-4 mx-auto w-fit">

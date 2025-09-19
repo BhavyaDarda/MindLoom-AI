@@ -14,10 +14,10 @@ import {
 
 export function Footer() {
   return (
-    <footer className="bg-gradient-to-t from-muted/50 to-background border-t border-white/10">
+    <footer className="bg-gradient-to-t from-muted/50 to-background border-t border-white/10 font-unbound ">
       <div className="max-w-7xl mx-auto px-6 py-16">
         {/* Hackathon project showcase */}
-        <div className="bg-background brutal-border brutal-shadow p-8 md:p-12 mb-16">
+        <div className="bg-background brutal-border brutal-shadow p-8 md:p-12 mb-16 ">
           <div className="text-center space-y-6">
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-3">
@@ -54,11 +54,11 @@ export function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
-                <Zap className="w-6 h-6 text-white" />
+                <Zap className="w-6 h-6 text-black" />
               </div>
               <div>
                 <h2 className="text-xl font-black">
-                  <span className="bg-gradient-primary bg-clip-text text-transparent">
+                  <span className="bg-gradient-primary bg-clip-text ">
                     MindLoom AI
                   </span>
                 </h2>
@@ -75,7 +75,7 @@ export function Footer() {
           </div>
 
           {/* Tech Stack */}
-          <div className="space-y-4">
+          <div className="space-y-4 ml-36">
             <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Code className="w-4 h-4" />
               Tech Stack
@@ -90,7 +90,7 @@ export function Footer() {
           </div>
 
           {/* Features */}
-          <div className="space-y-4">
+          <div className="space-y-4 ml-32">
             <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Lightbulb className="w-4 h-4" />
               Key Features
@@ -117,15 +117,17 @@ export function Footer() {
               </p>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm">
                 <Github className="w-4 h-4" />
+                <a href="https://github.com/Arnav2722/MindLoom-AI"></a>
               </Button>
-              <Button variant="ghost" size="sm">
+              {/* <Button variant="ghost" size="sm">
                 <MessageSquare className="w-4 h-4" />
-              </Button>
+              </Button> */}
               <Button variant="ghost" size="sm">
                 <Mail className="w-4 h-4" />
+                <a href="mailto:"></a>
               </Button>
             </div>
           </div>

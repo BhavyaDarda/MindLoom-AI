@@ -71,7 +71,7 @@ export function FileUpload({ onFilesUploaded, className, maxFiles = 5 }: FileUpl
   };
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('space-y-6 font-unbound', className)}>
       {/* Upload area */}
       <div
         {...getRootProps()}

@@ -27,7 +27,8 @@ export default {
 				'xs': '480px',
 			},
 			fontFamily: {
-				sans: ['Inter', 'system-ui', 'sans-serif'],
+				unbound: ['Unbounded', 'sans-serif'],
+				alata: ['Alata', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

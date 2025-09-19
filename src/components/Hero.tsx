@@ -310,7 +310,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center py-24 px-6">
+    <section className="relative min-h-screen flex flex-col items-center justify-center py-24 px-6 font-unbound">
       {/* Brutal background pattern */}
       <div className="absolute inset-0 brutal-pattern" />
       <div className="absolute inset-0 brutal-dots" />

@@ -18,16 +18,16 @@ export function Header() {
     label: "Upload",
     href: "#upload"
   }];
-  return <header className="fixed top-0 w-full z-50 bg-background brutal-border-thick border-t-0 border-l-0 border-r-0 backdrop-blur-sm">
+  return <header className="fixed top-0 w-full z-50 bg-background brutal-border-thick border-t-0 border-l-0 border-r-0 backdrop-blur-sm font-unbound  ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Brutal Logo */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 -ml-24">
             <div className="bg-primary brutal-border brutal-shadow p-3 transform -rotate-12">
               <Zap className="w-8 h-8 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tighter uppercase">
+              <h1 className="text-xl sm:text-xl font-black tracking-tighter uppercase">
                 MindLoom AI
               </h1>
             </div>
@@ -41,7 +41,7 @@ export function Header() {
           </nav>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 -mr-48">
             {/* History button */}
             <div className="hidden sm:block">
               <TransformationHistory />
